@@ -1,0 +1,367 @@
+
+{
+  "info": {
+    "name": "Library Management System API",
+    "description": "Postman collection for testing authentication, genres, books, search, filtering, pagination and role-based authorization.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "patronEmail", "value": "patron@example.com" },
+    { "key": "patronPassword", "value": "PatronPassword123!" },
+    { "key": "librarianEmail", "value": "librarian@library.com" },
+    { "key": "librarianPassword", "value": "YourStrongDevelopmentPassword123!" },
+    { "key": "patronToken", "value": "" },
+    { "key": "librarianToken", "value": "" },
+    { "key": "genreId", "value": "1" },
+    { "key": "bookId", "value": "" },
+    { "key": "newGenreName", "value": "Postman Test Genre" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Patron",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Patron\",\n  \"email\": \"{{patronEmail}}\",\n  \"password\": \"{{patronPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Registration returns 201 or account already exists', function () {",
+                  "    pm.expect([201, 409]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Patron",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{patronEmail}}\",\n  \"password\": \"{{patronPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Patron login succeeds', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const response = pm.response.json();",
+                  "if (response.access_token) {",
+                  "    pm.collectionVariables.set('patronToken', response.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Librarian",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{librarianEmail}}\",\n  \"password\": \"{{librarianPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Librarian login succeeds', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const response = pm.response.json();",
+                  "if (response.access_token) {",
+                  "    pm.collectionVariables.set('librarianToken', response.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Genres",
+      "item": [
+        {
+          "name": "Get All Genres",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/genres"
+          }
+        },
+        {
+          "name": "Get Genre By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/genres/{{genreId}}"
+          }
+        },
+        {
+          "name": "Create Genre",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{newGenreName}}\"\n}"
+            },
+            "url": "{{baseUrl}}/genres"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Genre creation returns 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const response = pm.response.json();",
+                  "if (response.id) {",
+                  "    pm.collectionVariables.set('genreId', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Genre",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Postman Test Genre\"\n}"
+            },
+            "url": "{{baseUrl}}/genres/{{genreId}}"
+          }
+        },
+        {
+          "name": "Delete Genre",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/genres/{{genreId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books - Read, Search and Filter",
+      "item": [
+        {
+          "name": "Get All Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books"
+          }
+        },
+        {
+          "name": "Get Book By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "Search Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books?search=clean"
+          }
+        },
+        {
+          "name": "Filter Books By Genre",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books?genreId={{genreId}}"
+          }
+        },
+        {
+          "name": "Paginate Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books?page=1&limit=5"
+          }
+        },
+        {
+          "name": "Search, Filter and Paginate",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/books?search=programmer&genreId={{genreId}}&page=1&limit=5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books - Librarian Operations",
+      "item": [
+        {
+          "name": "Create Book - Librarian",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{librarianToken}}", "type": "string" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman API Testing\",\n  \"author\": \"Test Author\",\n  \"isbn\": \"9780132350884\",\n  \"totalCopies\": 5,\n  \"genreId\": {{genreId}}\n}"
+            },
+            "url": "{{baseUrl}}/books"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Librarian can create a book', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const response = pm.response.json();",
+                  "if (response.id) {",
+                  "    pm.collectionVariables.set('bookId', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Book - Librarian",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{librarianToken}}", "type": "string" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Postman API Testing\"\n}"
+            },
+            "url": "{{baseUrl}}/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "Delete Book - Librarian",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{librarianToken}}", "type": "string" }
+              ]
+            },
+            "url": "{{baseUrl}}/books/{{bookId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authorization Tests",
+      "item": [
+        {
+          "name": "Create Book - No Token (Expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unauthorized Test Book\",\n  \"author\": \"Test Author\",\n  \"isbn\": \"9780132350884\",\n  \"totalCopies\": 2,\n  \"genreId\": {{genreId}}\n}"
+            },
+            "url": "{{baseUrl}}/books"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Request without token is rejected', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Book - Patron Token (Expect 403)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{patronToken}}", "type": "string" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Patron Forbidden Test\",\n  \"author\": \"Test Author\",\n  \"isbn\": \"9780132350884\",\n  \"totalCopies\": 2,\n  \"genreId\": {{genreId}}\n}"
+            },
+            "url": "{{baseUrl}}/books"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Patron cannot create a book', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -2,18 +2,29 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const connectionString = process.env.DATABASE_URL;
+const librarianEmail = process.env.LIBRARIAN_EMAIL;
+const librarianPassword = process.env.LIBRARIAN_PASSWORD;
 
 if (!connectionString) {
   throw new Error('DATABASE_URL is not defined');
+}
+
+if (!librarianEmail || !librarianPassword) {
+  throw new Error('LIBRARIAN_EMAIL and LIBRARIAN_PASSWORD must be defined');
+}
+
+if (librarianPassword.length < 8) {
+  throw new Error('Librarian password must be at least 8 characters');
 }
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  // Create genres (or reuse them if they already exist)
+  // Create genres or reuse existing ones
   const genreNames = [
     'Technology',
     'Fiction',
@@ -35,7 +46,7 @@ async function main() {
     genres.map((genre) => [genre.name, genre.id]),
   );
 
-  // Clear existing books so rerunning the seed doesn't duplicate them
+  // Clear existing books before inserting seed books
   await prisma.book.deleteMany();
 
   const books = [
@@ -68,9 +79,28 @@ async function main() {
     })),
   });
 
+  // Create or update the librarian account
+  const hashedPassword = await bcrypt.hash(librarianPassword, 10);
+
+  const librarian = await prisma.user.upsert({
+    where: { email: librarianEmail },
+    update: {
+      name: 'Library Librarian',
+      password: hashedPassword,
+      role: 'LIBRARIAN',
+    },
+    create: {
+      name: 'Library Librarian',
+      email: librarianEmail,
+      password: hashedPassword,
+      role: 'LIBRARIAN',
+    },
+  });
+
   console.log('Database seeded successfully!');
-  console.log(`Genres created: ${genres.length}`);
+  console.log(`Genres available: ${genres.length}`);
   console.log(`Books inserted: ${books.length}`);
+  console.log(`Librarian account: ${librarian.email}`);
 }
 
 main()
