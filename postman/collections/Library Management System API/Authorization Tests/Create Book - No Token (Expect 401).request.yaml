@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/books"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Unauthorized Test Book",
+      "author": "Test Author",
+      "isbn": "9780132350884",
+      "totalCopies": 2,
+      "genreId": {{genreId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Request without token is rejected', function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 1000

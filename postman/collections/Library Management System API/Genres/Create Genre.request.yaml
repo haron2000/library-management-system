@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/genres"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "{{newGenreName}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Genre creation returns 201', function () {
+          pm.response.to.have.status(201);
+      });
+      const response = pm.response.json();
+      if (response.id) {
+          pm.collectionVariables.set('genreId', response.id);
+      }
+    language: text/javascript
+order: 3000

@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Postman Patron",
+      "email": "{{patronEmail}}",
+      "password": "{{patronPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Registration returns 201 or account already exists', function () {
+          pm.expect([201, 409]).to.include(pm.response.code);
+      });
+    language: text/javascript
+order: 1000

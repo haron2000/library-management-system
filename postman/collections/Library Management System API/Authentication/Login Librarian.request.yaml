@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{librarianEmail}}",
+      "password": "{{librarianPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Librarian login succeeds', function () {
+          pm.response.to.have.status(200);
+      });
+      const response = pm.response.json();
+      if (response.access_token) {
+          pm.collectionVariables.set('librarianToken', response.access_token);
+      }
+    language: text/javascript
+order: 3000

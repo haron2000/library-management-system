@@ -1,0 +1,20 @@
+$kind: collection
+description: Postman collection for testing authentication, genres, books, search, filtering, pagination and role-based authorization.
+variables:
+  baseUrl: http://localhost:3000
+  patronEmail: patron@example.com
+  patronPassword: PatronPassword123!
+  librarianEmail: librarian@library.com
+  librarianPassword: Librarian@password123.
+  patronToken: ""
+  librarianToken: ""
+  genreId: "1"
+  bookId: ""
+  newGenreName: Postman Test Genre
+auth:
+  type: oauth1
+  credentials:
+    signatureMethod: HMAC-SHA1
+    version: "1.0"
+    addParamsToHeader: false
+    addEmptyParamsToSign: false

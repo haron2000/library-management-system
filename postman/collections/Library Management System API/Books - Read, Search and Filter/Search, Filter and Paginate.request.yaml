@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/books?search=programmer&genreId={{genreId}}&page=1&limit=5"
+method: GET
+queryParams:
+  search: programmer
+  genreId: "{{genreId}}"
+  page: "1"
+  limit: "5"
+order: 6000

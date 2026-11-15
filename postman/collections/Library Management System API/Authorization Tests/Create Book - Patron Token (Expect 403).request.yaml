@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/books"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Patron Forbidden Test",
+      "author": "Test Author",
+      "isbn": "9780132350884",
+      "totalCopies": 2,
+      "genreId": {{genreId}}
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{patronToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Patron cannot create a book', function () {
+          pm.response.to.have.status(403);
+      });
+    language: text/javascript
+order: 2000

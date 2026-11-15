@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/books/{{bookId}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Updated Postman API Testing"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{librarianToken}}"
+order: 2000

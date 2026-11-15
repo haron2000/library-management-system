@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{baseUrl}}/books"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Postman API Testing",
+      "author": "Test Author",
+      "isbn": "9780132350884",
+      "totalCopies": 5,
+      "genreId": {{genreId}}
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{librarianToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Librarian can create a book', function () {
+          pm.response.to.have.status(201);
+      });
+      const response = pm.response.json();
+      if (response.id) {
+          pm.collectionVariables.set('bookId', response.id);
+      }
+    language: text/javascript
+order: 1000

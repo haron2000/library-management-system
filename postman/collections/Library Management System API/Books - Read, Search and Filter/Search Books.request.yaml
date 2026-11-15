@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/books?search=clean"
+method: GET
+queryParams:
+  search: clean
+order: 3000
